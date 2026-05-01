@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spam Classifier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<div class="container">
+
+    <header class="header">
+        <div class="header-badge">
+            <span class="badge-dot"></span>
+            <span>ML Inference Engine v2.1</span>
+        </div>
+        <h1 class="title">Spam<em>Guard</em></h1>
+        <p class="subtitle">Intelligent message classification powered by NLP</p>
+    </header>
+
+    <div class="card main-card">
+        <div class="card-label">INPUT</div>
+        <textarea id="message" placeholder="Paste or type your message here to analyze..."></textarea>
+        <div class="textarea-footer">
+            <span class="char-hint">Try pasting SMS or any suspicious message</span>
+            <button class="btn-primary" onclick="predict()">
+                <span class="btn-text">Analyze</span>
+                <span class="btn-icon">→</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="section-label">
+        <span class="section-line"></span>
+        <span>Quick Examples</span>
+        <span class="section-line"></span>
+    </div>
+
+    <div class="samples">
+        <button class="sample-btn spam-sample" onclick="setMessage('Congratulations! You have been selected as a winner. Click here to claim your $1000 prize before it expires!')">
+            <span class="sample-tag">SPAM</span>
+            <span class="sample-text">Prize winner alert</span>
+        </button>
+        <button class="sample-btn spam-sample" onclick="setMessage('WINNER!! You have won a $1000 gift card. Click now!')">
+            <span class="sample-tag">SPAM</span>
+            <span class="sample-text">Lottery alert</span>
+        </button>
+        <button class="sample-btn spam-sample" onclick="setMessage('Free entry in 2 a weekly competition to win tickets. Text WIN now!')">
+            <span class="sample-tag">SPAM</span>
+            <span class="sample-text">Weekly Competition Entry</span>
+        </button>
+        <button class="sample-btn spam-sample" onclick="setMessage('URGENT! Your account has been selected for a cash prize. Claim now.')">
+            <span class="sample-tag">SPAM</span>
+            <span class="sample-text">Urgent Cash Prize Claim</span>
+        </button>
+        <button class="sample-btn ham-sample" onclick="setMessage('Hey, are you coming to the study group session tonight? We are meeting at the library at 7.')">
+            <span class="sample-tag">HAM</span>
+            <span class="sample-text">Study group invite</span>
+        </button>
+        <button class="sample-btn ham-sample" onclick="setMessage('Hi, just a reminder that your appointment with Dr. Sharma is scheduled for tomorrow at 11:00 AM.')">
+            <span class="sample-tag">HAM</span>
+            <span class="sample-text">Doctor reminder</span>
+        </button>
+        <button class="sample-btn ham-sample" onclick="setMessage('Can you pick up some groceries on your way home? We need milk, bread, and eggs.')">
+            <span class="sample-tag">HAM</span>
+            <span class="sample-text">Grocery request</span>
+        </button>
+        <button class="sample-btn ham-sample" onclick="setMessage('Your order #48291 has been shipped and is expected to arrive by Friday. Track it on our website.')">
+            <span class="sample-tag">HAM</span>
+            <span class="sample-text">Order shipping update</span>
+        </button>
+    </div>
+
+    <div id="result"></div>
+
+    <footer class="footer">
+        <span class="dm-mono">Classification model · NLP pipeline · Real-time inference</span>
+    </footer>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
