@@ -53,31 +53,24 @@ def transform_text(text):
 
     return " ".join(words)
 
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
-
-@app.get("/")
-def home():
-    return FileResponse("index.html")
-
 @app.post("/predict")
 def predict(data: TextInput):
     transformed = transform_text(data.message)
-
-    # DEBUG (very important)
-    print("Original:", data.message)
-    print("Processed:", transformed)
-
     vector_input = tfidf.transform([transformed])
-
     result = model.predict(vector_input)[0]
     prob = model.predict_proba(vector_input)[0]
 
     return {
-        "input": data.message,
-        "processed": transformed,
         "prediction": "Spam" if result == 1 else "Not Spam",
         "confidence": {
             "Not Spam": float(prob[0]),
             "Spam": float(prob[1])
         }
     }
+
+
+@app.get("/")
+def home():
+    return FileResponse("index.html")
+
+app.mount("/static", StaticFiles(directory="."), name="static")
