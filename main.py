@@ -15,17 +15,18 @@ app = FastAPI()
 # ✅ CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ✅ NLTK setup (Render-safe)
+# ✅ NLTK setup (Render FIXED)
 nltk_data_path = "/tmp/nltk_data"
 os.makedirs(nltk_data_path, exist_ok=True)
 nltk.data.path.append(nltk_data_path)
 
+# 🔥 IMPORTANT: download ALL required resources
 try:
     nltk.data.find('corpora/stopwords')
 except:
@@ -36,15 +37,19 @@ try:
 except:
     nltk.download('punkt', download_dir=nltk_data_path)
 
+# 🔥 THIS WAS MISSING (main bug)
+try:
+    nltk.data.find('tokenizers/punkt_tab')
+except:
+    nltk.download('punkt_tab', download_dir=nltk_data_path)
+
+# init after downloads
 ps = PorterStemmer()
 stop_words = set(stopwords.words('english'))
 
-# ✅ Load models (safe)
-try:
-    tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
-    model = pickle.load(open('model.pkl', 'rb'))
-except Exception as e:
-    print("Model loading error:", e)
+# ✅ Load models
+tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
+model = pickle.load(open('model.pkl', 'rb'))
 
 # request body
 class TextInput(BaseModel):
@@ -86,5 +91,5 @@ def predict(data: TextInput):
 def home():
     return FileResponse("index.html")
 
-# ✅ Static files (IMPORTANT: only for css/js)
+# ✅ Static files
 app.mount("/static", StaticFiles(directory="."), name="static")
