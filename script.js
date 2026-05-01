@@ -6,27 +6,23 @@ async function predict() {
     const message = document.getElementById("message").value;
     const resultDiv = document.getElementById("result");
 
-    if (!message.trim()) {
-        resultDiv.innerHTML = "⚠️ Please enter a message";
-        return;
-    }
-
     resultDiv.innerHTML = "⏳ Checking...";
 
     try {
-        const response = await fetch("/predict", {
-            method: "POST",
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+            method: "POST",   // 🔥 MUST
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({
+                message: message
+            })
         });
 
         const data = await response.json();
 
         resultDiv.innerHTML = `
-            <p><strong>Prediction:</strong> ${data.prediction}</p>
-            <p>Spam Confidence: ${(data.confidence.Spam * 100).toFixed(2)}%</p>
+            <p><strong>${data.prediction}</strong></p>
         `;
 
     } catch (error) {

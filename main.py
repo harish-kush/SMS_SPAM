@@ -8,27 +8,11 @@ from nltk.stem.porter import PorterStemmer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-
-# download only if not present
-try:
-    nltk.data.find('corpora/stopwords')
-except:
-    nltk.download('stopwords')
-
-try:
-    nltk.data.find('tokenizers/punkt')
-except:
-    nltk.download('punkt')
-
-ps = PorterStemmer()
-stop_words = set(stopwords.words('english'))  # load once
-
-# load models
-tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
-model = pickle.load(open('model.pkl', 'rb'))
+import os
 
 app = FastAPI()
 
+# ✅ CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],   
@@ -37,11 +21,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ✅ NLTK setup (Render-safe)
+nltk_data_path = "/tmp/nltk_data"
+os.makedirs(nltk_data_path, exist_ok=True)
+nltk.data.path.append(nltk_data_path)
 
+try:
+    nltk.data.find('corpora/stopwords')
+except:
+    nltk.download('stopwords', download_dir=nltk_data_path)
+
+try:
+    nltk.data.find('tokenizers/punkt')
+except:
+    nltk.download('punkt', download_dir=nltk_data_path)
+
+ps = PorterStemmer()
+stop_words = set(stopwords.words('english'))
+
+# ✅ Load models (safe)
+try:
+    tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
+    model = pickle.load(open('model.pkl', 'rb'))
+except Exception as e:
+    print("Model loading error:", e)
+
+# request body
 class TextInput(BaseModel):
     message: str
 
-# preprocessing (optimized)
+# preprocessing
 def transform_text(text):
     text = text.lower()
     words = nltk.word_tokenize(text)
@@ -53,24 +62,29 @@ def transform_text(text):
 
     return " ".join(words)
 
+# ✅ Prediction API
 @app.post("/predict")
 def predict(data: TextInput):
-    transformed = transform_text(data.message)
-    vector_input = tfidf.transform([transformed])
-    result = model.predict(vector_input)[0]
-    prob = model.predict_proba(vector_input)[0]
+    try:
+        transformed = transform_text(data.message)
+        vector_input = tfidf.transform([transformed])
+        result = model.predict(vector_input)[0]
+        prob = model.predict_proba(vector_input)[0]
 
-    return {
-        "prediction": "Spam" if result == 1 else "Not Spam",
-        "confidence": {
-            "Not Spam": float(prob[0]),
-            "Spam": float(prob[1])
+        return {
+            "prediction": "Spam" if result == 1 else "Not Spam",
+            "confidence": {
+                "Not Spam": float(prob[0]),
+                "Spam": float(prob[1])
+            }
         }
-    }
+    except Exception as e:
+        return {"error": str(e)}
 
-
+# ✅ Homepage
 @app.get("/")
 def home():
     return FileResponse("index.html")
 
+# ✅ Static files (IMPORTANT: only for css/js)
 app.mount("/static", StaticFiles(directory="."), name="static")
