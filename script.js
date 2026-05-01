@@ -9,7 +9,7 @@ async function predict() {
     resultDiv.innerHTML = "⏳ Checking...";
 
     try {
-        const response = await fetch("http://127.0.0.1:8000/predict", {
+        const response = await fetch("https://sms-spam-2-jsrh.onrender.com/predict", {
             method: "POST",   // 🔥 MUST
             headers: {
                 "Content-Type": "application/json"
